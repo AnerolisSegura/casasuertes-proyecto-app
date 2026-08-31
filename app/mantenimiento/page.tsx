@@ -21,7 +21,7 @@ export default function MantenimientoPage() {
     setMensajeExito(false);
 
     try {
-      const { error } = await supabase.from('mantenimiento').insert([
+      const { error } = await supabase.from('tickets_mantenimiento').insert([
         {
           nombre_cliente: nombre,
           proyecto: proyecto,
