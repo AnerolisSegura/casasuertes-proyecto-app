@@ -261,13 +261,13 @@ export default function AdminPage() {
               onClick={exportarExcel}
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-xl text-sm transition-all shadow-sm"
             >
-              📊 Exportar Excel
+               Exportar Excel
             </button>
             <button 
               onClick={fetchTickets}
               className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-xl text-sm transition-all border border-slate-200"
             >
-              🔄 Actualizar
+               Actualizar
             </button>
             <button 
               onClick={() => setAutenticado(false)}
@@ -447,10 +447,10 @@ export default function AdminPage() {
               {/* Historial de Tiempos Automáticos */}
               <div className="space-y-1.5 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-200">
                 <span className="font-bold text-slate-700 uppercase tracking-wider block mb-1">Historial de Tiempos Registrados</span>
-                <p className="text-slate-600">📌 <b>Creado:</b> {new Date(ticketSeleccionado.created_at).toLocaleString()}</p>
-                <p className="text-slate-600">🔍 <b>En Revisión:</b> {ticketSeleccionado.fecha_revision ? new Date(ticketSeleccionado.fecha_revision).toLocaleString() : 'Pendiente'}</p>
-                <p className="text-slate-600">⚙️ <b>En Proceso:</b> {ticketSeleccionado.fecha_proceso ? new Date(ticketSeleccionado.fecha_proceso).toLocaleString() : 'Pendiente'}</p>
-                <p className="text-slate-600">✅ <b>Resuelto:</b> {ticketSeleccionado.fecha_resuelto ? new Date(ticketSeleccionado.fecha_resuelto).toLocaleString() : 'Pendiente'}</p>
+                <p className="text-slate-600"> <b>Creado:</b> {new Date(ticketSeleccionado.created_at).toLocaleString()}</p>
+                <p className="text-slate-600"> <b>En Revisión:</b> {ticketSeleccionado.fecha_revision ? new Date(ticketSeleccionado.fecha_revision).toLocaleString() : 'Pendiente'}</p>
+                <p className="text-slate-600"> <b>En Proceso:</b> {ticketSeleccionado.fecha_proceso ? new Date(ticketSeleccionado.fecha_proceso).toLocaleString() : 'Pendiente'}</p>
+                <p className="text-slate-600"> <b>Resuelto:</b> {ticketSeleccionado.fecha_resuelto ? new Date(ticketSeleccionado.fecha_resuelto).toLocaleString() : 'Pendiente'}</p>
               </div>
 
               <div>
