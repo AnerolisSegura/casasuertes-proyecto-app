@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     console.log("Cuerpo recibido desde Supabase:", body);
 
     const record = body.record || {};
-    const emailDestino = record.email_cliente || 'anosegura2006@gmail.com';
+    const emailDestino = record.email_cliente || 'anisegura2006@gmail.com';
     const estadoNuevo = record.estado || 'Actualizado';
     const tipoIncidencia = record.tipo_incidencia || 'Mantenimiento';
 
