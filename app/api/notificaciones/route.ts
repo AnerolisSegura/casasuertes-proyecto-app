@@ -1,29 +1,38 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-// Inicializa Resend usando la variable de entorno
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    console.log("Datos recibidos en la API:", body);
+    // Inicializar Resend dentro de la función evita el error de compilación en Vercel
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
-    // Extraer correo del cliente (soporta prueba manual o datos del trigger)
-    const emailDestino = body.record?.email_cliente || body.email || 'anosegura2006@gmail.com';
+    const body = await request.json();
+    console.log("Cuerpo recibido desde Supabase:", body);
+
+    const record = body.record || {};
+    const emailDestino = record.email_cliente || 'anosegura2006@gmail.com';
+    const estadoNuevo = record.estado || 'Actualizado';
+    const tipoIncidencia = record.tipo_incidencia || 'Mantenimiento';
 
     const data = await resend.emails.send({
-      from: 'onboarding@resend.dev', // O tu dominio verificado en Resend
+      from: 'onboarding@resend.dev',
       to: [emailDestino],
-      subject: 'Actualización de Estado - Ticket de Mantenimiento',
-      html: `<p>Hola, el estado de tu solicitud ha cambiado.</p>`
+      subject: `Actualización de Ticket: ${tipoIncidencia}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>Hola ${record.nombre_cliente || 'Estimado cliente'},</h2>
+          <p>El estado de tu ticket de mantenimiento ha cambiado a: <strong>${estadoNuevo}</strong>.</p>
+          <p><strong>Proyecto:</strong> ${record.proyecto || 'N/A'} - Apto ${record.apartamento || 'N/A'}</p>
+          <hr/>
+          <p style="font-size: 12px; color: #666;">Casasuertes Mantenimiento</p>
+        </div>
+      `,
     });
 
-    console.log("Respuesta exitosa de Resend:", data);
+    console.log("Correo enviado exitosamente:", data);
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    // Esto mostrará el error exacto en los logs de Vercel
-    console.error("Error crítico en la API de notificaciones:", error);
+    console.error("Error al enviar el correo:", error);
     return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
   }
 }
