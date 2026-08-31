@@ -1,50 +1,46 @@
-import Image from 'next/image';
-import Link from 'next/link';
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-between p-6">
-      <div className="w-full"></div>
-
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center flex flex-col items-center">
+    <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="bg-white border border-slate-200 shadow-xl rounded-3xl max-w-md w-full p-8 text-center space-y-6">
         
-        {/* Logo integrado correctamente */}
-        <div className="mb-4">
-          <Image 
+        {/* Logo / Encabezado */}
+        <div className="flex flex-col items-center">
+          <img 
             src="/logo.png" 
-            alt="CASASUERTES SAS Logo" 
-            width={170} 
-            height={45} 
-            className="object-contain h-12 w-auto"
-            priority
+            alt="Casasuertes Logo" 
+            className="w-48 h-20 object-contain mb-3" 
           />
+          <h1 className="text-2xl font-bold text-slate-900">Casasuertes</h1>
+          <p className="text-sm text-slate-500 mt-1">Selecciona el módulo al que deseas ingresar.</p>
         </div>
 
-        <h1 className="text-xl font-extrabold text-slate-900 mb-2">Portal de Propietarios</h1>
-        <p className="text-slate-500 text-sm mb-6">Selecciona el servicio que deseas consultar:</p>
-        
-        <div className="flex flex-col gap-4 w-full">
+        {/* Botones de Navegación Principal */}
+        <div className="flex flex-col gap-3">
           <Link 
-            href="/avance" 
-            className="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold shadow-sm hover:bg-blue-700 transition flex items-center justify-center gap-2"
+            href="/mantenimiento"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl text-sm transition-all shadow-md shadow-indigo-500/20 text-center block"
           >
-             Bitácora de Avance de Obra
+            Módulo de Mantenimiento (Crear Reporte)
           </Link>
-          
+
           <Link 
-            href="/mantenimiento" 
-            className="w-full py-3 bg-slate-100 text-slate-700 rounded-xl font-semibold border border-slate-200 hover:bg-slate-200 transition flex items-center justify-center gap-2"
+            href="/cliente"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl text-sm transition-all shadow-md shadow-emerald-500/20 text-center block"
           >
-             Módulo de Mantenimiento
+            Portal del Cliente (Consultar Estado)
+          </Link>
+
+          <Link 
+            href="/avance"
+            className="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-xl text-sm transition-all shadow-md shadow-slate-900/20 text-center block"
+          >
+            Bitácora (Ver Avances y Progreso)
           </Link>
         </div>
+
       </div>
-
-      <footer className="text-center py-4">
-        <Link href="/admin" className="text-xs text-slate-400 hover:text-slate-600 transition">
-          Acceso Administrador
-        </Link>
-      </footer>
     </main>
   );
 }
