@@ -71,8 +71,6 @@ export default function AdminPage() {
         setTicketSeleccionado({ ...ticketSeleccionado, ...updateData });
       }
 
-      // 💡 Simulación de Notificación por Correo (Resend / SendGrid API call)
-      // Aqui puedes integrar un fetch hacia tu ruta de API en Next.js (/api/send-email)
       console.log(`Correo enviado a cliente informando cambio a: ${nuevoEstado}`);
 
     } catch (err: any) {
@@ -98,7 +96,6 @@ export default function AdminPage() {
     }
   };
 
-  // Función para subir foto de evidencia del ingeniero
   const subirEvidencia = async (e: React.ChangeEvent<HTMLInputElement>, ticketId: string) => {
     try {
       if (!e.target.files || e.target.files.length === 0) return;
@@ -138,7 +135,6 @@ export default function AdminPage() {
     }
   };
 
-  // Función para exportar reporte mensual a CSV (Excel)
   const exportarExcel = () => {
     let csvContent = "data:text/csv;charset=utf-8,Cliente,Proyecto,Apartamento,Incidencia,Estado,Ingeniero,Fecha Creacion,Fecha Resuelto\n";
     
@@ -180,10 +176,12 @@ export default function AdminPage() {
       <main className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
         <div className="bg-white border border-slate-200 shadow-xl rounded-2xl max-w-md w-full p-8 space-y-6">
           <div className="text-center flex flex-col items-center">
-            {/* Logo de la Empresa */}
-            <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-500/30 mb-3">
-              CS
-            </div>
+            {/* Logo de Casasuertes en el Login */}
+            <img 
+              src="/logo.png" 
+              alt="Casasuertes Logo" 
+              className="w-55 h-20 object-contain mb-3" 
+            />
             <h1 className="text-2xl font-bold text-slate-900">Portal Administrativo</h1>
             <p className="text-sm text-slate-500 mt-1">Ingresa tus credenciales para gestionar el sistema.</p>
           </div>
@@ -232,12 +230,14 @@ export default function AdminPage() {
     <main className="min-h-screen bg-slate-50 text-slate-800 p-6 md:p-10">
       <div className="max-w-7xl mx-auto space-y-6">
         
-        {/* Cabecera con Logo */}
+        {/* Cabecera con Logo de Casasuertes */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md">
-              CS
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="Casasuertes Logo" 
+              className="w-60 h-20 object-contain" 
+            />
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">Panel de Administración</h1>
               <p className="text-slate-500 text-sm">Gestión y control de reportes de post-entrega.</p>
@@ -248,7 +248,7 @@ export default function AdminPage() {
               onClick={exportarExcel}
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-xl text-sm transition-all shadow-sm"
             >
-              Exportar Excel
+               Exportar Excel
             </button>
             <button 
               onClick={fetchTickets}
@@ -382,7 +382,7 @@ export default function AdminPage() {
           )}
         </div>
 
-        {/* Modal de Detalle Completo con Evidencia y Historial */}
+        {/* Modal de Detalle */}
         {modalAbierto && ticketSeleccionado && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
             <div className="bg-white border border-slate-200 rounded-3xl max-w-xl w-full p-6 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -434,7 +434,7 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Sección de Foto de Evidencia para el Ingeniero */}
+              {/* Foto de Evidencia */}
               <div className="space-y-2 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
                 <span className="text-indigo-900 text-xs font-bold uppercase tracking-wider block">Foto de Evidencia del Trabajo Reparado</span>
                 {ticketSeleccionado.url_foto_evidencia ? (
