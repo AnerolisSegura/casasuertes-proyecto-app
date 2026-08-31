@@ -10,9 +10,9 @@ export default function Home() {
           <img 
             src="/logo.png" 
             alt="Casasuertes Logo" 
-            className="w-48 h-20 object-contain mb-3" 
+            className="w-80 h-20 object-contain mb-3" 
           />
-          <h1 className="text-2xl font-bold text-slate-900">Casasuertes</h1>
+    
           <p className="text-sm text-slate-500 mt-1">Selecciona el módulo al que deseas ingresar.</p>
         </div>
 

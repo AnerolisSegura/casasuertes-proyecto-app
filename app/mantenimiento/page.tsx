@@ -30,6 +30,7 @@ const LISTA_SERVICIOS = [
 
 export default function MantenimientoPage() {
   const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
   const [documento, setDocumento] = useState("");
   const [proyecto, setProyecto] = useState("");
   const [apartamento, setApartamento] = useState("");
@@ -54,7 +55,8 @@ export default function MantenimientoPage() {
       const { error } = await supabase.from("tickets_mantenimiento").insert([
         {
           nombre_cliente: nombre,
-          documento_cliente: documento, // Nuevo campo de seguridad
+          email_cliente: email,
+          documento_cliente: documento,
           proyecto,
           apartamento,
           tipo_incidencia: tipoIncidencia,
@@ -66,6 +68,7 @@ export default function MantenimientoPage() {
       if (error) throw error;
       setExito(true);
       setNombre("");
+      setEmail("");
       setDocumento("");
       setProyecto("");
       setApartamento("");
@@ -112,6 +115,18 @@ export default function MantenimientoPage() {
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 placeholder="Ej. Carlos Pérez"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required 
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">Correo Electrónico (Para Notificaciones)</label>
+              <input 
+                type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="ejemplo@correo.com"
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 required 
               />
