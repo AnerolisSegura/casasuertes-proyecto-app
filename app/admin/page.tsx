@@ -7,6 +7,18 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+const LISTA_SERVICIOS = [
+  "Piscinas",
+  "Sistemas de riego",
+  "Electricidad",
+  "Pintura",
+  "Plomería",
+  "Cerrajería",
+  "Aires acondicionados",
+  "Albañilería e Impermeabilización",
+  "Otro"
+];
+
 export default function AdminPage() {
   const [autenticado, setAutenticado] = useState<boolean>(false);
   const [usuario, setUsuario] = useState<string>("");
@@ -17,6 +29,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [filtroProyecto, setFiltroProyecto] = useState<string>("TODOS");
   const [filtroEstado, setFiltroEstado] = useState<string>("TODOS");
+  const [filtroIncidencia, setFiltroIncidencia] = useState<string>("TODOS");
   const [busqueda, setBusqueda] = useState<string>("");
   
   const [ticketSeleccionado, setTicketSeleccionado] = useState<any | null>(null);
@@ -164,11 +177,12 @@ export default function AdminPage() {
   const ticketsFiltrados = tickets.filter((ticket) => {
     const coincideProyecto = filtroProyecto === "TODOS" || ticket.proyecto === filtroProyecto;
     const coincideEstado = filtroEstado === "TODOS" || ticket.estado === filtroEstado;
+    const coincideIncidencia = filtroIncidencia === "TODOS" || ticket.tipo_incidencia === filtroIncidencia;
     const coincideBusqueda = 
       ticket.nombre_cliente?.toLowerCase().includes(busqueda.toLowerCase()) ||
       ticket.apartamento?.toLowerCase().includes(busqueda.toLowerCase()) ||
       ticket.descripcion?.toLowerCase().includes(busqueda.toLowerCase());
-    return coincideProyecto && coincideEstado && coincideBusqueda;
+    return coincideProyecto && coincideEstado && coincideIncidencia && coincideBusqueda;
   });
 
   if (!autenticado) {
@@ -176,11 +190,10 @@ export default function AdminPage() {
       <main className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
         <div className="bg-white border border-slate-200 shadow-xl rounded-2xl max-w-md w-full p-8 space-y-6">
           <div className="text-center flex flex-col items-center">
-            {/* Logo de Casasuertes en el Login */}
             <img 
               src="/logo.png" 
               alt="Casasuertes Logo" 
-              className="w-55 h-20 object-contain mb-3" 
+              className="w-48 h-24 object-contain mb-3" 
             />
             <h1 className="text-2xl font-bold text-slate-900">Portal Administrativo</h1>
             <p className="text-sm text-slate-500 mt-1">Ingresa tus credenciales para gestionar el sistema.</p>
@@ -236,7 +249,7 @@ export default function AdminPage() {
             <img 
               src="/logo.png" 
               alt="Casasuertes Logo" 
-              className="w-60 h-20 object-contain" 
+              className="w-48 h-20 object-contain" 
             />
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">Panel de Administración</h1>
@@ -248,13 +261,13 @@ export default function AdminPage() {
               onClick={exportarExcel}
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-xl text-sm transition-all shadow-sm"
             >
-               Exportar Excel
+              📊 Exportar Excel
             </button>
             <button 
               onClick={fetchTickets}
               className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-xl text-sm transition-all border border-slate-200"
             >
-               Actualizar
+              🔄 Actualizar
             </button>
             <button 
               onClick={() => setAutenticado(false)}
@@ -266,7 +279,7 @@ export default function AdminPage() {
         </div>
 
         {/* Filtros */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
           <div>
             <label className="block text-xs font-semibold uppercase text-slate-500 mb-1.5">Buscar</label>
             <input 
@@ -287,6 +300,19 @@ export default function AdminPage() {
               <option value="TODOS">Todos los proyectos</option>
               <option value="Torre ALBOR">Torre ALBOR</option>
               <option value="DOWNTOWN">DOWNTOWN</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase text-slate-500 mb-1.5">Tipo de Servicio</label>
+            <select 
+              value={filtroIncidencia}
+              onChange={(e) => setFiltroIncidencia(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="TODOS">Todos los servicios</option>
+              {LISTA_SERVICIOS.map((servicio) => (
+                <option key={servicio} value={servicio}>{servicio}</option>
+              ))}
             </select>
           </div>
           <div>
@@ -421,10 +447,10 @@ export default function AdminPage() {
               {/* Historial de Tiempos Automáticos */}
               <div className="space-y-1.5 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-200">
                 <span className="font-bold text-slate-700 uppercase tracking-wider block mb-1">Historial de Tiempos Registrados</span>
-                <p className="text-slate-600"> <b>Creado:</b> {new Date(ticketSeleccionado.created_at).toLocaleString()}</p>
-                <p className="text-slate-600"> <b>En Revisión:</b> {ticketSeleccionado.fecha_revision ? new Date(ticketSeleccionado.fecha_revision).toLocaleString() : 'Pendiente'}</p>
-                <p className="text-slate-600"> <b>En Proceso:</b> {ticketSeleccionado.fecha_proceso ? new Date(ticketSeleccionado.fecha_proceso).toLocaleString() : 'Pendiente'}</p>
-                <p className="text-slate-600"> <b>Resuelto:</b> {ticketSeleccionado.fecha_resuelto ? new Date(ticketSeleccionado.fecha_resuelto).toLocaleString() : 'Pendiente'}</p>
+                <p className="text-slate-600">📌 <b>Creado:</b> {new Date(ticketSeleccionado.created_at).toLocaleString()}</p>
+                <p className="text-slate-600">🔍 <b>En Revisión:</b> {ticketSeleccionado.fecha_revision ? new Date(ticketSeleccionado.fecha_revision).toLocaleString() : 'Pendiente'}</p>
+                <p className="text-slate-600">⚙️ <b>En Proceso:</b> {ticketSeleccionado.fecha_proceso ? new Date(ticketSeleccionado.fecha_proceso).toLocaleString() : 'Pendiente'}</p>
+                <p className="text-slate-600">✅ <b>Resuelto:</b> {ticketSeleccionado.fecha_resuelto ? new Date(ticketSeleccionado.fecha_resuelto).toLocaleString() : 'Pendiente'}</p>
               </div>
 
               <div>
