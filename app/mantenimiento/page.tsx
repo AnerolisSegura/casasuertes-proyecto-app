@@ -7,6 +7,15 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+const LISTA_PROYECTOS = [
+  "Downtown Sands",
+  "Dominican Fiesta",
+  "Marina Residences 73",
+  "Casa Golf 234",
+  "Vista Marina Residences",
+  "Torre Albor"
+];
+
 const LISTA_SERVICIOS = [
   "Piscinas",
   "Sistemas de riego",
@@ -21,15 +30,24 @@ const LISTA_SERVICIOS = [
 
 export default function MantenimientoPage() {
   const [nombre, setNombre] = useState("");
-  const [proyecto, setProyecto] = useState("Torre ALBOR");
+  const [proyecto, setProyecto] = useState("");
   const [apartamento, setApartamento] = useState("");
-  const [tipoIncidencia, setTipoIncidencia] = useState(LISTA_SERVICIOS[0]);
+  const [tipoIncidencia, setTipoIncidencia] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [exito, setExito] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!proyecto) {
+      alert("Por favor selecciona un proyecto.");
+      return;
+    }
+    if (!tipoIncidencia) {
+      alert("Por favor selecciona un tipo de incidencia o servicio.");
+      return;
+    }
+
     setEnviando(true);
     try {
       const { error } = await supabase.from("tickets_mantenimiento").insert([
@@ -46,7 +64,9 @@ export default function MantenimientoPage() {
       if (error) throw error;
       setExito(true);
       setNombre("");
+      setProyecto("");
       setApartamento("");
+      setTipoIncidencia("");
       setDescripcion("");
     } catch (err) {
       console.error(err);
@@ -100,9 +120,12 @@ export default function MantenimientoPage() {
                 value={proyecto}
                 onChange={(e) => setProyecto(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
               >
-                <option value="Torre ALBOR">Torre ALBOR</option>
-                <option value="DOWNTOWN">DOWNTOWN</option>
+                <option value="" disabled>Selecciona un proyecto...</option>
+                {LISTA_PROYECTOS.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
               </select>
             </div>
 
@@ -124,7 +147,9 @@ export default function MantenimientoPage() {
                 value={tipoIncidencia}
                 onChange={(e) => setTipoIncidencia(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
               >
+                <option value="" disabled>Selecciona un servicio...</option>
                 {LISTA_SERVICIOS.map((servicio) => (
                   <option key={servicio} value={servicio}>{servicio}</option>
                 ))}
