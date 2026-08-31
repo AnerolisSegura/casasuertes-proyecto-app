@@ -1,161 +1,152 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+// Asegúrate de importar correctamente tu cliente de Supabase
+import { supabase } from '@/lib/supabase';
 
-export default function Home() {
-  const [formData, setFormData] = useState({
-    nombre_cliente: '',
-    proyecto: 'Torre ALBOR',
-    apartamento: '',
-    tipo_incidencia: 'Plomería / Filtración',
-    descripcion: '',
-  })
-
-  const [loading, setLoading] = useState(false)
-  const [mensaje, setMensaje] = useState<{ tipo: 'exito' | 'error'; texto: string } | null>(null)
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
-  }
+export default function MantenimientoPage() {
+  const [nombre, setNombre] = useState('');
+  const [proyecto, setProyecto] = useState('Torre ALBOR');
+  const [apartamento, setApartamento] = useState('');
+  const [tipoIncidencia, setTipoIncidencia] = useState('Cerrajería / Puertas');
+  const [descripcion, setDescripcion] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  const [mensajeExito, setMensajeExito] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setMensaje(null)
+    e.preventDefault();
+    setEnviando(true);
+    setMensajeExito(false);
 
     try {
-      const { data, error } = await supabase
-        .from('tickets_mantenimiento')
-        .insert([formData])
+      const { error } = await supabase.from('mantenimiento').insert([
+        {
+          nombre_cliente: nombre,
+          proyecto: proyecto,
+          apartamento: apartamento,
+          tipo_incidencia: tipoIncidencia,
+          descripcion: descripcion,
+          estado: 'Pendiente',
+        },
+      ]);
 
-      if (error) throw error
+      if (error) throw error;
 
-      setMensaje({ tipo: 'exito', texto: '¡Ticket enviado con éxito! Su solicitud está en estado de revisión.' })
-      
-      setFormData({
-        nombre_cliente: '',
-        proyecto: 'Torre ALBOR',
-        apartamento: '',
-        tipo_incidencia: 'Plomería / Filtración',
-        descripcion: '',
-      })
-    } catch (err: any) {
-      setMensaje({ tipo: 'error', texto: `Error al enviar el ticket: ${err.message}` })
+      setMensajeExito(true);
+      setNombre('');
+      setApartamento('');
+      setDescripcion('');
+    } catch (err) {
+      console.error('Error al enviar el reporte:', err);
+      alert('Hubo un error al enviar la solicitud. Inténtalo de nuevo.');
     } finally {
-      setLoading(false)
+      setEnviando(false);
     }
-  }
+  };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-8">
-        {/* Encabezado */}
-        <div className="border-b border-gray-200 pb-5 mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
-            CASASUERTES - Portal de Mantenimiento
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Reporte de incidencias y asistencia técnica post-entrega.
-          </p>
+    <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-between p-6">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col items-center my-auto">
+        <div className="mb-4">
+          <Image 
+            src="/logo.png" 
+            alt="Logo Casasuertes" 
+            width={160} 
+            height={45} 
+            className="object-contain h-12 w-auto mx-auto mb-2"
+            priority
+          />
         </div>
 
-        {/* Notificación Alerta */}
-        {mensaje && (
-          <div className={`mb-6 p-4 rounded-md text-sm font-medium ${
-            mensaje.tipo === 'exito' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
-          }`}>
-            {mensaje.texto}
+        <h1 className="text-xl font-extrabold text-slate-900 mb-1 text-center">Módulo de Mantenimiento</h1>
+        <p className="text-slate-500 text-xs mb-6 text-center">Reporta cualquier incidencia de tu unidad inmobiliaria.</p>
+        
+        {mensajeExito && (
+          <div className="w-full p-3 mb-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-xl font-medium text-center">
+            ¡Reporte enviado con éxito! Los ingenieros lo revisarán pronto.
           </div>
         )}
 
-        {/* Formulario */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nombre Completo</label>
-            <input
-              type="text"
-              name="nombre_cliente"
-              value={formData.nombre_cliente}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 bg-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Ej. Juan Pérez"
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Nombre Completo</label>
+            <input 
+              type="text" 
+              value={nombre} 
+              onChange={(e) => setNombre(e.target.value)} 
+              placeholder="Ej. Carlos Pérez" 
+              required 
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Proyecto Inmobiliario</label>
-            <select
-              name="proyecto"
-              value={formData.proyecto}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Proyecto</label>
+            <select 
+              value={proyecto} 
+              onChange={(e) => setProyecto(e.target.value)} 
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white"
             >
               <option value="Torre ALBOR">Torre ALBOR</option>
-              <option value="Casa Golf 324">Casa Golf 324</option>
-              <option value="MARINA 73">MARINA 73</option>
-              <option value="VIP AILA">VIP AILA</option>
               <option value="DOWNTOWN">DOWNTOWN</option>
-              <option value="Vista Marina">Vista Marina</option>
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Número de Apartamento/Villa</label>
-              <input
-                type="text"
-                name="apartamento"
-                value={formData.apartamento}
-                onChange={handleChange}
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 bg-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Ej. 402"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Tipo de Incidencia</label>
-              <select
-                name="tipo_incidencia"
-                value={formData.tipo_incidencia}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 bg-white shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="Plomería / Filtración">Plomería / Filtración</option>
-                <option value="Eléctrico">Eléctrico</option>
-                <option value="Pintura / Acabados">Pintura / Acabados</option>
-                <option value="Cerrajería / Puertas">Cerrajería / Puertas</option>
-                <option value="Otro">Otro</option>
-              </select>
-            </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Número de Apartamento / Unidad</label>
+            <input 
+              type="text" 
+              value={apartamento} 
+              onChange={(e) => setApartamento(e.target.value)} 
+              placeholder="Ej. 102" 
+              required 
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Descripción detallada del problema</label>
-            <textarea
-              rows={4}
-              name="descripcion"
-              value={formData.descripcion}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 bg-white placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Describa brevemente la falla encontrada..."
-            ></textarea>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Tipo de Incidencia</label>
+            <select 
+              value={tipoIncidencia} 
+              onChange={(e) => setTipoIncidencia(e.target.value)} 
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white"
+            >
+              <option value="Cerrajería / Puertas">Cerrajería / Puertas</option>
+              <option value="Plomería / Filtración">Plomería / Filtración</option>
+              <option value="Electricidad">Electricidad</option>
+              <option value="Acabados">Acabados</option>
+            </select>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Descripción del Problema</label>
+            <textarea 
+              value={descripcion} 
+              onChange={(e) => setDescripcion(e.target.value)} 
+              placeholder="Detalla los detalles del daño..." 
+              rows={3}
+              required 
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 resize-none"
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={enviando}
+            className="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold shadow-sm hover:bg-blue-700 transition text-sm mt-2 disabled:opacity-50"
           >
-            {loading ? 'Enviando...' : 'Enviar Reporte de Ticket'}
+            {enviando ? 'Enviando...' : 'Enviar Reporte'}
           </button>
         </form>
+
+        <div className="mt-6 pt-4 border-t border-slate-100 w-full text-center">
+          <Link href="/" className="text-xs text-slate-500 hover:text-blue-600 transition font-medium">
+            ← Volver al Portal Principal
+          </Link>
+        </div>
       </div>
     </main>
-  )
+  );
 }
