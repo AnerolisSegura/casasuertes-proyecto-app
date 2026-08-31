@@ -8,21 +8,21 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function PortalClientePage() {
-  const [apartamentoBusqueda, setApartamentoBusqueda] = useState("");
+  const [documentoBusqueda, setDocumentoBusqueda] = useState("");
   const [ticketsCliente, setTicketsCliente] = useState<any[]>([]);
   const [buscado, setBuscado] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const consultarTickets = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!apartamentoBusqueda.trim()) return;
+    if (!documentoBusqueda.trim()) return;
 
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from("tickets_mantenimiento")
         .select("*")
-        .ilike("apartamento", `%${apartamentoBusqueda}%`)
+        .eq("documento_cliente", documentoBusqueda.trim())
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -47,20 +47,20 @@ export default function PortalClientePage() {
             alt="Casasuertes Logo" 
             className="w-48 h-20 object-contain mb-3" 
           />
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Portal de Consulta Ciudadana / Inquilinos</h1>
-          <p className="text-slate-500 text-sm mt-1">Consulta el estado actual de los reportes de mantenimiento de tu unidad.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Portal de Consulta Ciudadana / Propietarios</h1>
+          <p className="text-slate-500 text-sm mt-1">Ingresa tu número de documento o cédula para consultar el estado de tus reportes.</p>
         </div>
 
-        {/* Buscador por Apartamento */}
+        {/* Buscador por Documento */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
           <form onSubmit={consultarTickets} className="flex flex-col md:flex-row gap-3">
             <div className="flex-1">
-              <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">Número de Apartamento / Unidad</label>
+              <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">Cédula / Documento de Identidad</label>
               <input 
                 type="text" 
-                value={apartamentoBusqueda}
-                onChange={(e) => setApartamentoBusqueda(e.target.value)}
-                placeholder="Ej. 102"
+                value={documentoBusqueda}
+                onChange={(e) => setDocumentoBusqueda(e.target.value)}
+                placeholder="Ej. 001-0000000-1"
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 required
               />
@@ -81,12 +81,12 @@ export default function PortalClientePage() {
         {buscado && (
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-900 px-1">
-              Resultados para la unidad: <span className="text-indigo-600">{apartamentoBusqueda}</span>
+              Resultados para el documento: <span className="text-indigo-600">{documentoBusqueda}</span>
             </h2>
 
             {ticketsCliente.length === 0 ? (
               <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center text-slate-400 shadow-sm">
-                No se encontraron reportes asociados a esta unidad habitacional.
+                No se encontraron reportes asociados a este documento de identidad.
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4">
@@ -115,7 +115,7 @@ export default function PortalClientePage() {
                       <p className="text-xs text-slate-400 pt-1"><b>Fecha de creación:</b> {new Date(ticket.created_at).toLocaleString()}</p>
                     </div>
 
-                    {/* Si ya está resuelto y tiene foto de evidencia */}
+                    {/* Evidencia fotográfica si el administrador ya la subió */}
                     {ticket.url_foto_evidencia && (
                       <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 space-y-2">
                         <span className="text-emerald-900 text-xs font-bold uppercase tracking-wider block">Evidencia del Trabajo Realizado</span>

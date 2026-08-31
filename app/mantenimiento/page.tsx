@@ -30,6 +30,7 @@ const LISTA_SERVICIOS = [
 
 export default function MantenimientoPage() {
   const [nombre, setNombre] = useState("");
+  const [documento, setDocumento] = useState("");
   const [proyecto, setProyecto] = useState("");
   const [apartamento, setApartamento] = useState("");
   const [tipoIncidencia, setTipoIncidencia] = useState("");
@@ -53,6 +54,7 @@ export default function MantenimientoPage() {
       const { error } = await supabase.from("tickets_mantenimiento").insert([
         {
           nombre_cliente: nombre,
+          documento_cliente: documento, // Nuevo campo de seguridad
           proyecto,
           apartamento,
           tipo_incidencia: tipoIncidencia,
@@ -64,6 +66,7 @@ export default function MantenimientoPage() {
       if (error) throw error;
       setExito(true);
       setNombre("");
+      setDocumento("");
       setProyecto("");
       setApartamento("");
       setTipoIncidencia("");
@@ -109,6 +112,18 @@ export default function MantenimientoPage() {
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 placeholder="Ej. Carlos Pérez"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required 
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">Cédula / Documento de Identidad</label>
+              <input 
+                type="text" 
+                value={documento}
+                onChange={(e) => setDocumento(e.target.value)}
+                placeholder="Ej. 001-0000000-1"
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 required 
               />
