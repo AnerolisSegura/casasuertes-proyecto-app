@@ -3,14 +3,11 @@ import { Resend } from 'resend';
 
 export async function POST(request: Request) {
   try {
-    // Inicializar Resend dentro de la función evita el error de compilación en Vercel
     const resend = new Resend(process.env.RESEND_API_KEY);
-
     const body = await request.json();
-    console.log("Cuerpo recibido desde Supabase:", body);
-
-    const record = body.record || {};
-    const emailDestino = record.email_cliente || 'anisegura2006@gmail.com';
+    
+    const record = body.record || body;
+    const emailDestino = record.email_cliente || 'anosegura2006@gmail.com';
     const estadoNuevo = record.estado || 'Actualizado';
     const tipoIncidencia = record.tipo_incidencia || 'Mantenimiento';
 
@@ -29,10 +26,9 @@ export async function POST(request: Request) {
       `,
     });
 
-    console.log("Correo enviado exitosamente:", data);
     return NextResponse.json({ success: true, data });
-  } catch (error) {
-    console.error("Error al enviar el correo:", error);
-    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
+  } catch (error: any) {
+    console.error("Error detallado:", error);
+    return NextResponse.json({ success: false, error: error.message || String(error) }, { status: 500 });
   }
 }
