@@ -239,7 +239,7 @@ export default function DashboardMetricas() {
                 <BarChart data={datosEncargados} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="encargado" stroke="#64748b" fontSize={12} tickLine={false} />
-                  <YAxis stroke="#64748b" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
                   <Tooltip 
                     contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '10px', color: '#fff' }}
                     cursor={{ fill: 'rgba(241, 245, 249, 0.8)' }}
