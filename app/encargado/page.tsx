@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
@@ -17,7 +17,6 @@ export default function IngenieroPortalPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [subiendoFotoId, setSubiendoFotoId] = useState<string | null>(null);
 
-  // Simulación de acceso por nombre de encargado registrado
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (nombreIngeniero.trim() !== "" && password === "ing123") {
@@ -32,7 +31,6 @@ export default function IngenieroPortalPage() {
   const fetchTicketsIngeniero = async (nombre: string) => {
     setLoading(true);
     try {
-      // Filtra los tickets donde el encargado asignado coincida con el nombre del técnico
       const { data, error } = await supabase
         .from('tickets_mantenimiento')
         .select('*')
@@ -52,9 +50,8 @@ export default function IngenieroPortalPage() {
     const ahora = new Date().toISOString();
     let updateData: any = { estado: nuevoEstado };
 
-    if (nuevoEstado === "En Revisión") updateData.fecha_revision = ahora;
     if (nuevoEstado === "En Proceso") updateData.fecha_proceso = ahora;
-    if (nuevoEstado === "Resuelto") updateData.fecha_resuelto = ahora;
+    if (nuevoEstado === "Completado") updateData.fecha_completado = ahora;
 
     try {
       const { error } = await supabase.from('tickets_mantenimiento').update(updateData).eq('id', id);
@@ -108,7 +105,7 @@ export default function IngenieroPortalPage() {
                 type="text" 
                 value={nombreIngeniero}
                 onChange={(e) => setNombreIngeniero(e.target.value)}
-                placeholder="Ej. Carlos Pérez"
+                placeholder="Ej. Ing. Carlos Pérez"
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 required 
               />
@@ -170,10 +167,12 @@ export default function IngenieroPortalPage() {
                       <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-0.5 rounded-md">
                         #{ticket.id.slice(0, 8)}
                       </span>
-                      <span className="text-xs text-slate-500">{ticket.proyecto} - Apto {ticket.apartamento}</span>
+                      <span className="text-xs text-slate-500">
+                        {ticket.proyecto} {ticket.torre_bloque ? `- Torre/Bloque ${ticket.torre_bloque}` : ''} - {ticket.ubicacion === 'Apartamento' ? `Apto ${ticket.apartamento}` : `Área Común: ${ticket.area_comun}`}
+                      </span>
                     </div>
                     <h4 className="font-bold text-slate-900 text-base">{ticket.nombre_cliente}</h4>
-                    <p className="text-xs text-indigo-700 font-medium">Servicio: {ticket.tipo_incidencia}</p>
+                    <p className="text-xs text-indigo-700 font-medium">Incidencia: {ticket.tipo_incidencia}</p>
                     <p className="text-xs text-slate-600 max-w-lg mt-1 bg-white p-2.5 rounded-xl border border-slate-200">
                       {ticket.descripcion}
                     </p>
@@ -183,14 +182,13 @@ export default function IngenieroPortalPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-semibold text-slate-500">Estado:</span>
                       <select
-                        value={ticket.estado || 'Pendiente'}
+                        value={ticket.estado || 'Abierto'}
                         onChange={(e) => actualizarEstadoTicket(ticket.id, e.target.value)}
                         className="bg-white border border-slate-300 text-xs rounded-xl px-3 py-1.5 font-semibold text-slate-800 shadow-sm focus:ring-2 focus:ring-indigo-500"
                       >
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="En Revisión">En Revisión</option>
+                        <option value="Abierto">Abierto</option>
                         <option value="En Proceso">En Proceso</option>
-                        <option value="Resuelto">Resuelto</option>
+                        <option value="Completado">Completado</option>
                       </select>
                     </div>
 
