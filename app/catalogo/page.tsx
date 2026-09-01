@@ -46,11 +46,16 @@ export default function CatalogoProyectosMercado() {
             priority
           />
           <div>
-        
             <span style={{ fontSize: '11px', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Portafolio de Desarrollos</span>
           </div>
         </div>
-        <div>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <Link 
+            href="/" 
+            style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#1e293b', padding: '10px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', textDecoration: 'none', display: 'inline-block' }}
+          >
+            &larr; Volver al Portal General
+          </Link>
           <Link 
             href="/portal-clientes" 
             style={{ background: '#4f46e5', color: '#ffffff', padding: '10px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', textDecoration: 'none', display: 'inline-block' }}

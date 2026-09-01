@@ -1,231 +1,150 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import Image from 'next/image';
+import { useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+import Link from "next/link";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!, 
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export default function PortalClientes() {
-  const [cedula, setCedula] = useState('');
-  const [cargando, setCargando] = useState(false);
-  const [error, setError] = useState('');
-  const [clienteData, setClienteData] = useState<any>(null);
-  const [bitacora, setBitacora] = useState<any[]>([]);
+export default function PortalClientePage() {
+  const [documentoBusqueda, setDocumentoBusqueda] = useState("");
+  const [ticketsCliente, setTicketsCliente] = useState<any[]>([]);
+  const [buscado, setBuscado] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const manejarLogin = async (e: React.FormEvent) => {
+  const consultarTickets = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!cedula.trim()) {
-      setError('Por favor ingresa tu número de cédula o pasaporte.');
-      return;
-    }
+    if (!documentoBusqueda.trim()) return;
 
-    setCargando(true);
-    setError('');
-
+    setLoading(true);
     try {
-      // 1. Buscar al cliente y hacer join con el proyecto asignado
-      const { data: cliente, error: errCliente } = await supabase
-        .from('clientes_propietarios')
-        .select(`
-          *,
-          proyectos_mercado (
-            id,
-            nombre,
-            descripcion,
-            ubicacion,
-            imagen_url,
-            porcentaje_avance,
-            estado_obra
-          )
-        `)
-        .eq('cedula_pasaporte', cedula.trim())
-        .single();
+      const { data, error } = await supabase
+        .from("tickets_mantenimiento")
+        .select("*")
+        .eq("documento_cliente", documentoBusqueda.trim())
+        .order("created_at", { ascending: false });
 
-      if (errCliente || !cliente) {
-        setError('No se encontró ningún registro asociado a esta cédula. Verifica tus datos.');
-        setClienteData(null);
-        setBitacora([]);
-        setCargando(false);
-        return;
-      }
-
-      setClienteData(cliente);
-
-      // 2. Obtener la bitácora de avance exclusiva de este proyecto
-      const { data: reportesBitacora, error: errBitacora } = await supabase
-        .from('bitacora_avance')
-        .select('*')
-        .eq('proyecto_id', cliente.proyecto_id)
-        .order('fecha_reporte', { ascending: false });
-
-      if (errBitacora) {
-        console.error('Error al cargar la bitácora:', errBitacora);
-      } else {
-        setBitacora(reportesBitacora || []);
-      }
-
+      if (error) throw error;
+      setTicketsCliente(data || []);
+      setBuscado(true);
     } catch (err) {
-      console.error('Error de autenticación:', err);
-      setError('Ocurrió un error al procesar tu solicitud.');
+      console.error(err);
+      alert("Error al consultar los reportes.");
     } finally {
-      setCargando(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      
-      {/* Barra Superior / Navbar */}
-      <header style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <Image 
-            src="/logo.png" 
-            alt="Casasuertes Logo" 
-            width={250} 
-            height={50} 
-            style={{ objectFit: 'contain', borderRadius: '8px' }} 
-            priority
-          />
-          <div>
-            <span style={{ fontSize: '11px', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Portal de Propietarios</span>
-          </div>
-        </div>
-        <div>
-          <a 
-            href="/" 
-            style={{ color: '#4f46e5', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}
-          >
-            ← Volver al Catálogo Público
-          </a>
-        </div>
-      </header>
-
-      {/* Contenido Principal */}
-      <main style={{ padding: '40px 32px', maxWidth: '1200px', margin: '0 auto' }}>
+    <main className="min-h-screen bg-slate-50 text-slate-800 p-6 md:p-10 flex items-center justify-center">
+      <div className="w-full max-w-4xl space-y-4">
         
-        {!clienteData ? (
-          /* Pantalla de Inicio de Sesión por Cédula */
-          <div style={{ maxWidth: '450px', margin: '60px auto', background: '#ffffff', padding: '32px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#0f172a', margin: '0 0 6px 0' }}>
-                Acceso a Bitácora Privada
-              </h1>
-              <p style={{ fontSize: '13px', color: '#64748b', margin: '0' }}>
-                Ingresa tu número de cédula o pasaporte para consultar el avance de tu unidad.
-              </p>
-            </div>
+        {/* Botón de retorno ancho que coincide perfectamente con el contenedor principal */}
+        <div className="w-full">
+          <Link 
+            href="/" 
+            className="w-full bg-white hover:bg-slate-100 border border-slate-200 text-slate-800 font-semibold py-3 px-6 rounded-3xl text-sm transition-all shadow-sm flex items-center justify-center gap-2"
+          >
+            <span className="text-base">&larr;</span> Volver al Portal General
+          </Link>
+        </div>
 
-            <form onSubmit={manejarLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>
-                  Cédula o Pasaporte
-                </label>
+        <div className="space-y-6">
+          {/* Cabecera */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm text-center flex flex-col items-center">
+            <img 
+              src="/logo.png" 
+              alt="Casasuertes Logo" 
+              className="w-48 h-20 object-contain mb-3" 
+            />
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Portal de Consulta Ciudadana / Propietarios</h1>
+            <p className="text-slate-500 text-sm mt-1">Ingresa tu número de documento o cédula para consultar el estado de tus reportes.</p>
+          </div>
+
+          {/* Buscador por Documento */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <form onSubmit={consultarTickets} className="flex flex-col md:flex-row gap-3">
+              <div className="flex-1">
+                <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">Cédula / Documento de Identidad</label>
                 <input 
                   type="text" 
-                  value={cedula} 
-                  onChange={(e) => setCedula(e.target.value)}
-                  placeholder="Ej. 001-1234567-8"
-                  style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                  value={documentoBusqueda}
+                  onChange={(e) => setDocumentoBusqueda(e.target.value)}
+                  placeholder="Ej. 001-0000000-1"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
                 />
               </div>
-
-              {error && (
-                <div style={{ backgroundColor: '#ffeeec', color: '#dc2626', padding: '10px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: '600' }}>
-                  {error}
-                </div>
-              )}
-
-              <button 
-                type="submit" 
-                disabled={cargando}
-                style={{ backgroundColor: '#4f46e5', color: '#ffffff', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', transition: 'background 0.2s' }}
-              >
-                {cargando ? 'Validando...' : 'Consultar Bitácora'}
-              </button>
+              <div className="flex items-end">
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-all shadow-md shadow-indigo-500/20 disabled:opacity-50"
+                >
+                  {loading ? "Buscando..." : "Consultar Mis Reportes"}
+                </button>
+              </div>
             </form>
           </div>
-        ) : (
-          /* Vista Privada del Cliente Logueado */
-          <div>
-            {/* Cabecera de Bienvenida */}
-            <div style={{ background: '#ffffff', padding: '24px 32px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-              <div>
-                <span style={{ fontSize: '12px', fontWeight: '700', color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Propietario Verificado</span>
-                <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a', margin: '4px 0 2px 0' }}>
-                  ¡Hola, {clienteData.nombre_cliente}!
-                </h1>
-                <p style={{ fontSize: '13px', color: '#64748b', margin: '0' }}>
-                  Unidad Inmobiliaria: <strong style={{ color: '#0f172a' }}>{clienteData.unidad_inmobiliaria}</strong> ({clienteData.proyectos_mercado?.nombre})
-                </p>
-              </div>
-              <button 
-                onClick={() => setClienteData(null)}
-                style={{ background: '#f1f5f9', color: '#475569', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
-              >
-                Cerrar Sesión
-              </button>
-            </div>
 
-            {/* Resumen del Proyecto del Cliente */}
-            <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '28px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0f172a', margin: '0 0 12px 0' }}>
-                Estatus Actual del Proyecto: {clienteData.proyectos_mercado?.nombre}
-              </h3>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700', color: '#475569', marginBottom: '8px' }}>
-                <span>Progreso General Registrado por Ingeniería</span>
-                <span>{clienteData.proyectos_mercado?.porcentaje_avance || 0}%</span>
-              </div>
-              <div style={{ width: '100%', height: '10px', backgroundColor: '#f1f5f9', borderRadius: '5px', overflow: 'hidden' }}>
-                <div style={{ width: `${clienteData.proyectos_mercado?.porcentaje_avance || 0}%`, height: '100%', backgroundColor: '#10b981', borderRadius: '5px' }}></div>
-              </div>
-            </div>
+          {/* Resultados */}
+          {buscado && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-bold text-slate-900 px-1">
+                Resultados para el documento: <span className="text-indigo-600">{documentoBusqueda}</span>
+              </h2>
 
-            {/* Bitácora de Avance Detallada */}
-            <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#0f172a', marginBottom: '16px' }}>
-              Bitácora Fotográfica y Reportes de Obra
-            </h2>
-
-            {bitacora.length === 0 ? (
-              <div style={{ background: '#ffffff', padding: '40px', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b' }}>
-                Aún no hay reportes de bitácora publicados para este proyecto.
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-                {bitacora.map((reporte) => (
-                  <div key={reporte.id} style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                    {reporte.fotografia_url && (
-                      <div style={{ height: '200px', backgroundColor: '#e2e8f0' }}>
-                        <img src={reporte.fotografia_url} alt={reporte.titulo_reporte} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
-                    )}
-                    <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                          <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>{reporte.fecha_reporte}</span>
-                          <span style={{ fontSize: '11px', backgroundColor: '#e0e7ff', color: '#4f46e5', padding: '2px 8px', borderRadius: '6px', fontWeight: '700' }}>
-                            Etapa: {reporte.porcentaje_etapa}%
+              {ticketsCliente.length === 0 ? (
+                <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center text-slate-400 shadow-sm">
+                  No se encontraron reportes asociados a este documento de identidad.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {ticketsCliente.map((ticket) => (
+                    <div key={ticket.id} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 border-b border-slate-100 pb-4">
+                        <div>
+                          <span className="bg-indigo-50 text-indigo-700 border border-indigo-100 px-2.5 py-1 rounded-lg text-xs font-medium">
+                            {ticket.tipo_incidencia}
                           </span>
+                          <h3 className="text-base font-bold text-slate-900 mt-2">{ticket.proyecto} — Apto {ticket.apartamento}</h3>
                         </div>
-                        <h4 style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', margin: '0 0 8px 0' }}>
-                          {reporte.titulo_reporte}
-                        </h4>
-                        <p style={{ fontSize: '13px', color: '#475569', margin: '0', lineHeight: '1.5' }}>
-                          {reporte.descripcion_avance}
-                        </p>
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                          ticket.estado === 'Resuelto' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 
+                          ticket.estado === 'En Proceso' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 
+                          ticket.estado === 'En Revisión' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                          'bg-rose-50 text-rose-700 border border-rose-200'
+                        }`}>
+                          {ticket.estado || 'Pendiente'}
+                        </span>
                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
-      </main>
-    </div>
+                      <div className="text-sm text-slate-600 space-y-1">
+                        <p><b>Reportado por:</b> {ticket.nombre_cliente}</p>
+                        <p><b>Descripción:</b> {ticket.descripcion}</p>
+                        <p className="text-xs text-slate-400 pt-1"><b>Fecha de creación:</b> {new Date(ticket.created_at).toLocaleString()}</p>
+                      </div>
+
+                      {/* Evidencia fotográfica si el administrador ya la subió */}
+                      {ticket.url_foto_evidencia && (
+                        <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 space-y-2">
+                          <span className="text-emerald-900 text-xs font-bold uppercase tracking-wider block">Evidencia del Trabajo Realizado</span>
+                          <a href={ticket.url_foto_evidencia} target="_blank" rel="noopener noreferrer">
+                            <img src={ticket.url_foto_evidencia} alt="Evidencia de reparación" className="w-full h-36 object-cover rounded-xl border border-emerald-200 shadow-sm" />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+        </div>
+      </div>
+    </main>
   );
 }
