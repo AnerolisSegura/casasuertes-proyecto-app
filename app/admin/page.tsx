@@ -1093,7 +1093,7 @@ export default function AdminPage() {
         )}
 
         {vistaActual === 'dashboard' && (
-          <DashboardMetricas tickets={tickets} />
+          <DashboardMetricas  />
         )}
 
         {vistaActual === 'tickets' && (
