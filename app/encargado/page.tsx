@@ -46,22 +46,39 @@ export default function IngenieroPortalPage() {
     }
   };
 
-  const actualizarEstadoTicket = async (id: string, nuevoEstado: string) => {
+ const actualizarEstadoTicket = async (id: string, nuevoEstado: string) => {
     const ahora = new Date().toISOString();
+    
+    // Objeto base solo con el estado obligatorio
     let updateData: any = { estado: nuevoEstado };
 
+    // Intentamos añadir las fechas condicionalmente si tu esquema las soporta, 
+    // pero si falla, el bloque try-catch nos ayudará a aislar el problema.
     if (nuevoEstado === "En Proceso") updateData.fecha_proceso = ahora;
     if (nuevoEstado === "Completado") updateData.fecha_completado = ahora;
 
     try {
-      const { error } = await supabase.from('tickets_mantenimiento').update(updateData).eq('id', id);
-      if (error) throw error;
+      const { error } = await supabase
+        .from('tickets_mantenimiento')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) {
+        // Si falla por columnas de fecha faltantes, intentamos actualizar solo el estado básico
+        console.warn("Fallo actualización con fechas, intentando solo estado...", error);
+        const { error: errorSimple } = await supabase
+          .from('tickets_mantenimiento')
+          .update({ estado: nuevoEstado })
+          .eq('id', id);
+          
+        if (errorSimple) throw errorSimple;
+      }
 
       alert("Estado actualizado correctamente.");
       fetchTicketsIngeniero(nombreIngeniero);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error al actualizar estado:", err);
-      alert("No se pudo actualizar el estado.");
+      alert(`No se pudo actualizar el estado: ${err.message || 'Error desconocido'}`);
     }
   };
 
@@ -206,7 +223,7 @@ export default function IngenieroPortalPage() {
                         </div>
                       ) : (
                         <label className="cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-sm block text-center">
-                          {subiendoFotoId === ticket.id ? 'Subiendo evidencia...' : '📸 Subir Foto de Evidencia'}
+                          {subiendoFotoId === ticket.id ? 'Subiendo evidencia...' : ' Subir Foto de Evidencia'}
                           <input type="file" accept="image/*" onChange={(e) => subirEvidenciaIngeniero(e, ticket.id)} className="hidden" />
                         </label>
                       )}

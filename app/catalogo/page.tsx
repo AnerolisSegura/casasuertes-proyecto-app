@@ -50,7 +50,7 @@ export default function CatalogoProyectosMercado() {
   const imagenesDowntownCard = [
     '/downtown-sands.jpg',
     '/downtown-sandsext.jpg',
-    '/downtown-sandsgymt.jpg',
+    '/downtown-sandsgym.jpg',
     '/downtown-sandsll.jpg',
     '/downtown-sandslo.jpg',
     '/downtown-sandssala.jpg',
